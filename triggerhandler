@@ -1,0 +1,54 @@
+public class StaffTriggerHandler {
+    // method to assign the value to Availability Status field before inserting the record.
+    public static void availabilityStatusBeforeInsert(List<Staff__c> staffList) {
+        for (Staff__c staff : staffList) {
+            if (staff.Status__c == 'Active') {
+                if(staff.Department__c == 'Fieldwork' || staff.Department__c == 'Research'){
+                   // Check if the staff is busy based on project or task assignments
+                   if (staff.Assigned_Project_or_Site__c == null && staff.Assigned_Projects__c == null) {
+                      staff.Availability_Status__c = 'Available';
+                    }  else {
+                    staff.Availability_Status__c = 'Busy';
+                    }
+                } else {
+                    staff.Availability_Status__c = 'Busy';
+                }
+                
+            } else if (staff.Status__c == 'Inactive' || staff.Status__c == 'Terminated') {
+                staff.Availability_Status__c = 'Unavailable';
+            } else if (staff.Status__c == 'On Leave') {
+                staff.Availability_Status__c = 'On Leave';
+            } 
+        }
+    }
+    
+    // method to update the value to Availability Status field before updating the record. 
+   
+    public static void availabilityStatusBeforeUpdate(Map<Id, Staff__c> oldStaffMap, List<Staff__c> staffList) {
+        
+        for (Staff__c staff : staffList) {
+            Staff__c oldStaff = oldStaffMap.get(staff.Id);
+       // It will check whether the Status field or any Assigned projects or sites or Task fields is updated or not.
+            if(staff.Status__c != oldStaff.Status__c || staff.Assigned_Project_or_Site__c != oldStaff.Assigned_Project_or_Site__c
+                   || staff.Assigned_Projects__c != oldStaff.Assigned_Projects__c ){
+                
+                 if (staff.Status__c == 'Active') {
+                // Check if the staff is busy based on project or task assignments
+                if (staff.Assigned_Project_or_Site__c == null && staff.Assigned_Projects__c == null) {
+                    staff.Availability_Status__c = 'Available';
+                } else {
+                    staff.Availability_Status__c = 'Busy';
+                }
+                } else if (staff.Status__c == 'Inactive' || staff.Status__c == 'Terminated') {
+                     staff.Availability_Status__c = 'Unavailable';
+                } else if (staff.Status__c == 'On Leave') {
+                     staff.Availability_Status__c = 'On Leave';
+                }
+                       
+            }
+            
+        }
+    }
+    
+    
+}
